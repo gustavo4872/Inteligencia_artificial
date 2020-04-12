@@ -10,14 +10,42 @@ public class Jogo {
 		this.montaMatrizHeuristica();
 	}
 	
-	private int[][] matrizHeuristica = new int[9][9]; // Matriz da heuristica de cada valor em cada posição da matriz final; 
+	int[][] matrizHeuristica = new int[9][9]; // Matriz da heuristica de cada valor em cada posição da matriz final; 
 	private int[][] estadoInicial;
 	private int[][] estadoFinal;
 	private Estado estadoAtual;	 
-	//private int estadosCriados;
-	//private int profundidade;
-	private int x, y;
+	private int qtEstadosCriados;	
+	private int ciclo;
+	private int idNovoEstado;
 	private PriorityQueue<Estado> estados = new PriorityQueue<Estado>();
+	
+	public void jogar() {
+		boolean condition = false;
+		try {			
+			this.estados.add(new Estado(estadoInicial, Contante.START, matrizHeuristica));			
+			while (!condition) {
+				setCiclo(getCiclo()+1);
+				Thread.sleep(100);
+				this.estadoAtual = estados.remove();
+				this.log();
+				if (this.estadoAtual.getHeuristica()!=0) {
+					this.montaNovoEstado();
+				}else {
+					break;					
+				}					
+			}
+		} catch (Exception e) {			
+			e.printStackTrace();			
+		}
+		
+	}
+	
+	private void log() {
+		System.out.println("-CICLO: "+getCiclo());
+		System.out.println("--Estados criados: "+getQtEstadosCriados());
+		System.out.println("--Estados em memória: "+getEstados().size());	
+		System.out.println(estadoAtual);	
+	}
 	
 	private void montaMatrizHeuristica() {
 		/*
@@ -66,34 +94,7 @@ public class Jogo {
 		}
 	}
 	
-	public void jogar() {
-		
-		this.estados.add(new Estado(estadoInicial, Contante.START, matrizHeuristica));
-		int i = 0;
-		while (!estados.isEmpty()) {
-			this.estadoAtual = estados.peek();
-			System.out.println("ITERAÇÃO - "+i++ +"\n");
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			System.out.println(estadoAtual);
-			//System.out.println("");			
-			estados.remove(estadoAtual);
-			if (this.estadoAtual.getHeuristica()!=0) {
-				this.montaNovoEstado();
-			}else {
-				System.out.println("Saida!!!");
-				break;
-			}
-			
-		}
-		
-	}
-	
-	public void montaNovoEstado() {
-		
+	private void montaNovoEstado() {		
 		int xEstadoAntigo = this.estadoAtual.getX();
 		int yEstadoAntigo = this.estadoAtual.getY();
 		
@@ -131,62 +132,119 @@ public class Jogo {
 		return novoTabuleiro;
 	}
 	
-	private void movDireita() {	
-		//System.out.println("MOVD");
-		int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
+	private void movDireita() {
 		if (this.estadoAtual.movimento != Contante.ESQUERDA) {
+			setIdNovoEstado(getIdNovoEstado()+1);
+			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX();
 			int yZero = this.estadoAtual.getY() + 1;
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
 			tabuleiroNovo[xZero][yZero-1] = valor;			
-			estados.add(new Estado(tabuleiroNovo, Contante.DIREITA, matrizHeuristica, xZero, yZero));
-			//System.out.println("SIZE - "+estados.size());
+			estados.add(new Estado(tabuleiroNovo, Contante.DIREITA, matrizHeuristica, xZero, yZero, estadoAtual.id, getIdNovoEstado()));
+			setQtEstadosCriados(getQtEstadosCriados()+1);
 		}
-	}
-	
-	private void movEsquerda() {
-		//System.out.println("MOVE");
-		int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
+	}	
+	private void movEsquerda() {	
 		if (estadoAtual.movimento != Contante.DIREITA) {
+			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX();
 			int yZero = this.estadoAtual.getY() - 1;
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
 			tabuleiroNovo[xZero][yZero+1] = valor;
 			//System.out.println("VALOR - "+valor);
-			estados.add(new Estado(tabuleiroNovo, Contante.ESQUERDA, matrizHeuristica, xZero, yZero));
-			//System.out.println("SIZE - "+estados.size());
+			estados.add(new Estado(tabuleiroNovo, Contante.ESQUERDA, matrizHeuristica, xZero, yZero, estadoAtual.id, idNovoEstado));
+			setQtEstadosCriados(getQtEstadosCriados()+1);
 		}
 	}
-	
 	private void movCima() {
-		//System.out.println("MOVC");
-		int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 		if (estadoAtual.movimento != Contante.BAIXO) {
+			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX()-1;
 			int yZero = this.estadoAtual.getY();
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
 			tabuleiroNovo[xZero+1][yZero] = valor;
-			//System.out.println("VALOR - "+valor);
-			estados.add(new Estado(tabuleiroNovo, Contante.CIMA, matrizHeuristica, xZero, yZero));
-			//System.out.println("SIZE - "+estados.size());
+			estados.add(new Estado(tabuleiroNovo, Contante.CIMA, matrizHeuristica, xZero, yZero, estadoAtual.id, idNovoEstado));
+			setQtEstadosCriados(getQtEstadosCriados()+1);
 		}
 	}
-	
-	private void movBaixo() {
-		//System.out.println("MOVB");
-		int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
+	private void movBaixo() {		
 		if (estadoAtual.movimento != Contante.CIMA) {
+			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX()+1;
 			int yZero = this.estadoAtual.getY();
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
 			tabuleiroNovo[xZero-1][yZero] = valor;
-			//System.out.println("VALOR - "+valor);
-			estados.add(new Estado(tabuleiroNovo, Contante.BAIXO, matrizHeuristica, xZero, yZero));
-			//System.out.println("SIZE - "+estados.size());
+			estados.add(new Estado(tabuleiroNovo, Contante.BAIXO, matrizHeuristica, xZero, yZero, estadoAtual.id, idNovoEstado));
+			setQtEstadosCriados(getQtEstadosCriados()+1);
 		}
 	}
+
+	
+	public int[][] getMatrizHeuristica() {
+		return matrizHeuristica;
+	}
+
+	public void setMatrizHeuristica(int[][] matrizHeuristica) {
+		this.matrizHeuristica = matrizHeuristica;
+	}
+
+	public int[][] getEstadoInicial() {
+		return estadoInicial;
+	}
+
+	public void setEstadoInicial(int[][] estadoInicial) {
+		this.estadoInicial = estadoInicial;
+	}
+
+	public int[][] getEstadoFinal() {
+		return estadoFinal;
+	}
+
+	public void setEstadoFinal(int[][] estadoFinal) {
+		this.estadoFinal = estadoFinal;
+	}
+
+	public Estado getEstadoAtual() {
+		return estadoAtual;
+	}
+
+	public void setEstadoAtual(Estado estadoAtual) {
+		this.estadoAtual = estadoAtual;
+	}
+
+	public int getQtEstadosCriados() {
+		return qtEstadosCriados;
+	}
+
+	public void setQtEstadosCriados(int qtEstadosCriados) {
+		this.qtEstadosCriados = qtEstadosCriados;
+	}
+
+	public int getCiclo() {
+		return ciclo;
+	}
+	public void setCiclo(int ciclo) {
+		this.ciclo = ciclo;
+	}
+	public int getIdNovoEstado() {
+		return idNovoEstado;
+	}
+
+	public void setIdNovoEstado(int idNovoEstado) {
+		this.idNovoEstado = idNovoEstado;
+	}
+
+	public PriorityQueue<Estado> getEstados() {
+		return estados;
+	}
+
+	public void setEstados(PriorityQueue<Estado> estados) {
+		this.estados = estados;
+	}
+
+	
 }

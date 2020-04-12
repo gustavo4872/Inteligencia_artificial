@@ -1,33 +1,35 @@
 package main;
 
 public class Estado implements Comparable<Estado>{
-	
-	public Estado() {
-		
-	}
 
 	public Estado(int[][] tabuleiro, int movimento, int[][] matrizHeuristica){
 		setTabuleiro(tabuleiro);
 		setMovimento(movimento);
 		this.findXYZero();
-		this.calculaHeuristica(matrizHeuristica);
+		this.calculaHeuristica(matrizHeuristica);		
 	}
 	
-	public Estado(int[][] tabuleiro, int movimento, int[][] matrizHeuristica, int x, int y){
+	public Estado(int[][] tabuleiro, int movimento, int[][] matrizHeuristica, int x, int y, int pai, int id){
 		setTabuleiro(tabuleiro);
 		setMovimento(movimento);
 		setX(x);
 		setY(y);
-		this.calculaHeuristica(matrizHeuristica);
+		this.calculaHeuristica(matrizHeuristica);		
+		this.id = id;
+		this.pai_id = pai;
 	}
 	
 	@Override
 	public String toString() {
-		String retorno = "";
-		retorno += "H - "+heuristica + "\n";
+		String retorno = "--Estado atual:\n";
+		retorno += "---Pai.ID: "+pai_id + 
+				"\n---Estado.ID: "+id+
+				"\n---Heuristica: "+heuristica+
+				"\n---Tabuleiro:\n";
 		for (int i = 0; i < tabuleiro.length; i++) {
+			retorno += "----\t";
 			for (int j = 0; j < tabuleiro.length; j++) {
-				retorno += tabuleiro[i][j] + "\t";
+				retorno +=tabuleiro[i][j] + "\t";
 			}
 			retorno += "\n";
 		}
@@ -38,8 +40,10 @@ public class Estado implements Comparable<Estado>{
 	public int heuristica;
 	public int movimento;
 	public int x, y;
+	public int id;
+	public int pai_id;
 	
-	private void calculaHeuristica(int[][] matrizHeuristica) {		
+	private void calculaHeuristica(int[][] matrizHeuristica) {
 		for (int i = 0; i < tabuleiro.length; i++) {
 			for (int j = 0; j < tabuleiro.length; j++) {
 				int valor = tabuleiro[i][j];				
@@ -98,7 +102,7 @@ public class Estado implements Comparable<Estado>{
 		this.y = y;
 	}
 
-	private int getMovimento() {
+	public int getMovimento() {
 		return movimento;
 	}
 
