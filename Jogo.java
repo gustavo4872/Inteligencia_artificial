@@ -10,13 +10,11 @@ public class Jogo {
 		this.montaMatrizHeuristica();
 	}
 	
-	int[][] matrizHeuristica = new int[9][9]; // Matriz da heuristica de cada valor em cada posição da matriz final; 
-	private int[][] estadoInicial;
-	private int[][] estadoFinal;
+	private int[][] matrizHeuristica = new int[9][9]; // Matriz da heuristica de cada valor em cada posição da matriz final; 
+	private int[][] estadoInicial, estadoFinal;	
 	private Estado estadoAtual;	 
-	private int qtEstadosCriados;	
+	private int qtEstadosCriados;
 	private int ciclo;
-	private int idNovoEstado;
 	private PriorityQueue<Estado> estados = new PriorityQueue<Estado>();
 	
 	public void jogar() {
@@ -24,8 +22,8 @@ public class Jogo {
 		try {			
 			this.estados.add(new Estado(estadoInicial, Contante.START, matrizHeuristica));			
 			while (!condition) {
-				setCiclo(getCiclo()+1);
-				Thread.sleep(100);
+				this.ciclo++;
+				//Thread.sleep(500);
 				this.estadoAtual = estados.remove();
 				this.log();
 				if (this.estadoAtual.getHeuristica()!=0) {
@@ -41,9 +39,9 @@ public class Jogo {
 	}
 	
 	private void log() {
-		System.out.println("-CICLO: "+getCiclo());
-		System.out.println("--Estados criados: "+getQtEstadosCriados());
-		System.out.println("--Estados em memória: "+getEstados().size());	
+		System.out.println("-CICLO: "+this.ciclo);
+		System.out.println("--Estados criados: "+this.qtEstadosCriados);
+		System.out.println("--Estados em memória: "+estados.size());	
 		System.out.println(estadoAtual);	
 	}
 	
@@ -133,118 +131,55 @@ public class Jogo {
 	}
 	
 	private void movDireita() {
-		if (this.estadoAtual.movimento != Contante.ESQUERDA) {
-			setIdNovoEstado(getIdNovoEstado()+1);
+		if (this.estadoAtual.getMovimento() != Contante.ESQUERDA) {
+			qtEstadosCriados++;
 			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX();
 			int yZero = this.estadoAtual.getY() + 1;
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
-			tabuleiroNovo[xZero][yZero-1] = valor;			
-			estados.add(new Estado(tabuleiroNovo, Contante.DIREITA, matrizHeuristica, xZero, yZero, estadoAtual.id, getIdNovoEstado()));
-			setQtEstadosCriados(getQtEstadosCriados()+1);
+			tabuleiroNovo[xZero][yZero-1] = valor;		
+			estados.add(new Estado(tabuleiroNovo, Contante.DIREITA, matrizHeuristica, xZero, yZero, estadoAtual.getId(), qtEstadosCriados, estadoAtual.getProfundidade()));			
 		}
 	}	
+	
 	private void movEsquerda() {	
-		if (estadoAtual.movimento != Contante.DIREITA) {
+		if (estadoAtual.getMovimento() != Contante.DIREITA) {			
+			qtEstadosCriados++;
 			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX();
 			int yZero = this.estadoAtual.getY() - 1;
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
 			tabuleiroNovo[xZero][yZero+1] = valor;
-			//System.out.println("VALOR - "+valor);
-			estados.add(new Estado(tabuleiroNovo, Contante.ESQUERDA, matrizHeuristica, xZero, yZero, estadoAtual.id, idNovoEstado));
-			setQtEstadosCriados(getQtEstadosCriados()+1);
+			estados.add(new Estado(tabuleiroNovo, Contante.ESQUERDA, matrizHeuristica, xZero, yZero, estadoAtual.getId(), qtEstadosCriados, estadoAtual.getProfundidade()));			
 		}
 	}
+	
 	private void movCima() {
-		if (estadoAtual.movimento != Contante.BAIXO) {
+		if (estadoAtual.getMovimento() != Contante.BAIXO) {
+			qtEstadosCriados++;
 			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX()-1;
 			int yZero = this.estadoAtual.getY();
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
 			tabuleiroNovo[xZero+1][yZero] = valor;
-			estados.add(new Estado(tabuleiroNovo, Contante.CIMA, matrizHeuristica, xZero, yZero, estadoAtual.id, idNovoEstado));
-			setQtEstadosCriados(getQtEstadosCriados()+1);
+			estados.add(new Estado(tabuleiroNovo, Contante.CIMA, matrizHeuristica, xZero, yZero, estadoAtual.getId(), qtEstadosCriados, estadoAtual.getProfundidade()));			
 		}
 	}
+	
 	private void movBaixo() {		
-		if (estadoAtual.movimento != Contante.CIMA) {
+		if (estadoAtual.getMovimento() != Contante.CIMA) {
+			qtEstadosCriados++;
 			int[][] tabuleiroNovo = clonaTabuleiro(estadoAtual.getTabuleiro());
 			int xZero = this.estadoAtual.getX()+1;
 			int yZero = this.estadoAtual.getY();
 			int valor = tabuleiroNovo[xZero][yZero];
 			tabuleiroNovo[xZero][yZero] = 0;
 			tabuleiroNovo[xZero-1][yZero] = valor;
-			estados.add(new Estado(tabuleiroNovo, Contante.BAIXO, matrizHeuristica, xZero, yZero, estadoAtual.id, idNovoEstado));
-			setQtEstadosCriados(getQtEstadosCriados()+1);
+			estados.add(new Estado(tabuleiroNovo, Contante.BAIXO, matrizHeuristica, xZero, yZero, estadoAtual.getId(), qtEstadosCriados, estadoAtual.getProfundidade()));			
 		}
 	}
-
-	
-	public int[][] getMatrizHeuristica() {
-		return matrizHeuristica;
-	}
-
-	public void setMatrizHeuristica(int[][] matrizHeuristica) {
-		this.matrizHeuristica = matrizHeuristica;
-	}
-
-	public int[][] getEstadoInicial() {
-		return estadoInicial;
-	}
-
-	public void setEstadoInicial(int[][] estadoInicial) {
-		this.estadoInicial = estadoInicial;
-	}
-
-	public int[][] getEstadoFinal() {
-		return estadoFinal;
-	}
-
-	public void setEstadoFinal(int[][] estadoFinal) {
-		this.estadoFinal = estadoFinal;
-	}
-
-	public Estado getEstadoAtual() {
-		return estadoAtual;
-	}
-
-	public void setEstadoAtual(Estado estadoAtual) {
-		this.estadoAtual = estadoAtual;
-	}
-
-	public int getQtEstadosCriados() {
-		return qtEstadosCriados;
-	}
-
-	public void setQtEstadosCriados(int qtEstadosCriados) {
-		this.qtEstadosCriados = qtEstadosCriados;
-	}
-
-	public int getCiclo() {
-		return ciclo;
-	}
-	public void setCiclo(int ciclo) {
-		this.ciclo = ciclo;
-	}
-	public int getIdNovoEstado() {
-		return idNovoEstado;
-	}
-
-	public void setIdNovoEstado(int idNovoEstado) {
-		this.idNovoEstado = idNovoEstado;
-	}
-
-	public PriorityQueue<Estado> getEstados() {
-		return estados;
-	}
-
-	public void setEstados(PriorityQueue<Estado> estados) {
-		this.estados = estados;
-	}
-
 	
 }
