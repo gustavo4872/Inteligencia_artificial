@@ -60,28 +60,30 @@ public class Jogo {
 		 * Cada valor do index da matriz heuristica representa a distância que o valor (X) está da sua posição final (Y); 
 		 *
 		*/
-		for (int i = 0; i < estadoFinal.length; i++) {
-			for (int j = 0; j < estadoFinal.length; j++) {
-				int aux1 = estadoFinal[i][j];//Pega uma posição na matriz final, sendo aux1 o valor da posição. I e j correspodem as coordenadas X e Y;
+		int lengthX = estadoFinal[0].length;
+		int lengthY = estadoFinal.length;
+		for (int i = 0; i < lengthX; i++) {
+			for (int j = 0; j < lengthY; j++) {				
+				int valor = estadoFinal[i][j];//Pega uma posição na matriz final, sendo "valor" a peça. I e j correspodem as coordenadas X e Y;
 				//Essa posição será comparada com todas as posições da mesma matriz;
 				//Ou seja, se um valor estiver na posição 0 - 0, podemos calcular a distância até 0 - 1, 0 - 2, e assim por diante;
 				//No sentido inverso, se o valor estiver na 0 - 2 e seu lugar for 0 - 0, saberemos a distância;
-				if (aux1!=0) {//Não é necessário calcular distância para o 0;
-					for (int k = 0; k < estadoFinal.length; k++) {
-						for (int k2 = 0; k2 < estadoFinal.length; k2++) {
+				if (valor!=0) {//Não é necessário calcular distância para o 0;
+					for (int k = 0; k < lengthX; k++) {
+						for (int k2 = 0; k2 < lengthY; k2++) {
 
 							if (i!=k||j!=k2) { //Se pegar as mesmas posições, então é colocado 0 na posição correpondente da matriz heuristica no else.
 											   //Pois na matriz final, cada posição corresponde ao lugar em que o valor deve terminar. Sendo assim;
 								if (i==k) {//Se caso as posições estiverem na mesma linha, a distância entre as posições é o resultado ABS da diferença entre os Y(j e k2);
-									matrizHeuristica[aux1][(k+k2)+(k*2)] = Math.abs(j - k2);
+									matrizHeuristica[valor][(lengthX*k)+k2] = Math.abs(j - k2);
 								}else if (j==k2) {//Se caso as posições estiverem na mesma coluna, a distância entre as posições é o resultado ABS da diferença entre os X(i e k);
-									matrizHeuristica[aux1][(k+k2)+(k*2)] = Math.abs(i - k);
+									matrizHeuristica[valor][(lengthX*k)+k2] = Math.abs(i - k);
 								}else {//Se caso as posições estiverem em linhas e colunas diferentes, a distância se dá pela soma da diferença entre os X (i e k) e Y (j e k2);
-									matrizHeuristica[aux1][(k+k2)+(k*2)] = Math.abs(i - k) + Math.abs(j - k2);
+									matrizHeuristica[valor][(lengthX*k)+k2] = Math.abs(i - k) + Math.abs(j - k2);
 								}
 								
 							}else {
-								matrizHeuristica[aux1][(k+k2)+(k*2)] = 0;
+								matrizHeuristica[valor][(k+k2)+(k*2)] = 0;
 							}
 							
 						}
